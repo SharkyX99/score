@@ -5,22 +5,5 @@
 ## วิธี deploy บน Vercel
 
 **วิธีที่ 1 — ลากไฟล์ (เร็วที่สุด)**
-1. ไปที่ https://vercel.com/new
-2. ลากโฟลเดอร์นี้ทั้งโฟลเดอร์ไปวาง หรือเลือกอัปโหลด
-3. กด Deploy — เสร็จ ไม่ต้องตั้งค่าอะไรเพิ่ม (เป็น static site ล้วน)
-
-**วิธีที่ 2 — ผ่าน Vercel CLI**
-```bash
-npm i -g vercel
-cd score-converter
-vercel
-```
-ตอบคำถามตามค่า default ได้เลย (ไม่มี build step, เป็น static HTML)
-
-**วิธีที่ 3 — ผ่าน GitHub**
-1. สร้าง repo ใหม่ แล้วอัปโหลดไฟล์ในโฟลเดอร์นี้ทั้งหมด
-2. ไปที่ https://vercel.com/new แล้วเลือก import จาก repo นั้น
-3. Framework Preset เลือก "Other" — Vercel จะ serve `index.html` ให้อัตโนมัติ
-
 ## แก้ตารางคะแนน
 เปิดไฟล์ `index.html` แล้วหาตัวแปร `RANGES` ในส่วน `<script>` — แต่ละแถวคือ `[คะแนนต่ำสุด, คะแนนสูงสุด, คะแนนที่ได้]`
