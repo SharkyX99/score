@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ตารางแปลงคะแนน 50 ข้อ</title>
+<style>
+:root{
+  --bg:#f7f7fb; --card:#ffffff; --text:#1c1c22; --muted:#6b6b76;
+  --accent:#3b5bfd; --accent2:#7c3aed; --border:#e5e5ec;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15151c; --card:#1f1f29; --text:#f0f0f5; --muted:#9a9aa6; --border:#33333f;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15151c; --card:#1f1f29; --text:#f0f0f5; --muted:#9a9aa6; --border:#33333f;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:"Sarabun","Noto Sans Thai",system-ui,-apple-system,sans-serif;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  min-height:100%;
+}
+.wrap{max-width:520px;margin:0 auto;padding:32px 20px 60px;}
+h1{font-size:1.4rem;margin:0 0 4px;}
+p.sub{color:var(--muted);margin:0 0 24px;font-size:.95rem;}
+.card{
+  background:var(--card); border:1px solid var(--border); border-radius:16px;
+  padding:24px; margin-bottom:20px;
+}
+label{font-size:.9rem;color:var(--muted);display:block;margin-bottom:8px;}
+input[type=number]{
+  width:100%; font-size:1.6rem; padding:12px 14px; border-radius:12px;
+  border:1px solid var(--border); background:var(--bg); color:var(--text);
+  -moz-appearance:textfield;
+}
+.result{
+  margin-top:20px; text-align:center; padding:20px; border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff; display:none;
+}
+.result.show{display:block;}
+.result .score{font-size:2.6rem; font-weight:700; line-height:1;}
+.result .label{opacity:.9; font-size:.85rem; margin-top:6px;}
+.err{color:#e5484d; font-size:.85rem; margin-top:8px; min-height:1.1em;}
+table{width:100%; border-collapse:collapse; font-size:.88rem; overflow-x:auto; display:block;}
+th,td{border:1px solid var(--border); padding:6px 8px; text-align:center;}
+th{background:var(--bg); color:var(--muted); font-weight:600;}
+tr.active td{background:var(--accent); color:#fff; font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ตารางแปลงคะแนน (50 ข้อ → 15 คะแนน)</h1>
+  <p class="sub">กรอกจำนวนข้อที่ตอบถูก (0–50) เพื่อแปลงเป็นคะแนน</p>
+
+  <div class="card">
+    <label for="raw">จำนวนข้อที่ถูก (จาก 50 ข้อ)</label>
+    <input type="number" id="raw" min="0" max="50" placeholder="เช่น 27" inputmode="numeric">
+    <div class="err" id="err"></div>
+    <div class="result" id="result">
+      <div class="score" id="score">-</div>
+      <div class="label">คะแนนที่ได้ (เต็ม 15)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table id="tbl"></table>
+  </div>
+</div>
+
+<script>
+// [min, max, score] — top row 49-50 = 15, down to 0 = 0
+const RANGES = [
+  [49,50,15],[45,48,14],[42,44,13],[39,41,12],[35,38,11],
+  [32,34,10],[29,31,9],[26,28,8],[22,25,7],[19,21,6],
+  [15,18,5],[12,14,4],[9,11,3],[5,8,2],[1,4,1],[0,0,0]
+];
+
+function scoreFor(n){
+  for(const [lo,hi,sc] of RANGES){ if(n>=lo && n<=hi) return sc; }
+  return null;
+}
+
+function renderTable(activeIdx){
+  const tbl = document.getElementById('tbl');
+  let rows = '<tr><th>ช่วงข้อที่ถูก</th><th>คะแนน</th></tr>';
+  RANGES.forEach((r,i)=>{
+    const label = r[0]===r[1] ? r[0] : `${r[0]} - ${r[1]}`;
+    rows += `<tr${i===activeIdx?' class="active"':''}><td>${label}</td><td>${r[2]}</td></tr>`;
+  });
+  tbl.innerHTML = rows;
+}
+
+const input = document.getElementById('raw');
+const result = document.getElementById('result');
+const scoreEl = document.getElementById('score');
+const errEl = document.getElementById('err');
+
+input.addEventListener('input', ()=>{
+  const v = input.value;
+  errEl.textContent = '';
+  if(v===''){ result.classList.remove('show'); renderTable(-1); return; }
+  const n = Number(v);
+  if(!Number.isInteger(n) || n<0 || n>50){
+    errEl.textContent = 'กรุณากรอกจำนวนเต็ม 0–50';
+    result.classList.remove('show');
+    renderTable(-1);
+    return;
+  }
+  const sc = scoreFor(n);
+  scoreEl.textContent = sc;
+  result.classList.add('show');
+  const idx = RANGES.findIndex(r=>n>=r[0]&&n<=r[1]);
+  renderTable(idx);
+});
+
+renderTable(-1);
+</script>
+</body>
+</html>
